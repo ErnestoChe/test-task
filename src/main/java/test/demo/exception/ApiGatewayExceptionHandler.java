@@ -35,5 +35,23 @@ public class ApiGatewayExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(errors);
     }
 
+    @ExceptionHandler({LogicException.class, BalanceException.class})
+    public final ResponseEntity<String> handle(BalanceException ex) {
+        log.error("Caught MethodArgumentNotValidException", ex);
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ex.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(NotFoundException.class)
+    public final ResponseEntity<String> handle(NotFoundException ex) {
+        log.error("Caught MethodArgumentNotValidException", ex);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
+    }
+
+    @ExceptionHandler(NotAuthException.class)
+    public final ResponseEntity<String> handle(NotAuthException ex) {
+        log.error("Caught MethodArgumentNotValidException", ex);
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getLocalizedMessage());
+    }
+
 
 }

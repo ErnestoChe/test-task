@@ -7,6 +7,8 @@ import test.demo.dao.entity.PhoneData;
 import test.demo.dao.entity.User;
 import test.demo.dao.repo.PhoneDataRepository;
 import test.demo.dao.repo.UserRepository;
+import test.demo.exception.LogicException;
+import test.demo.exception.NotFoundException;
 import test.demo.service.JwtTokenUtil;
 import test.demo.service.PhoneService;
 
@@ -24,11 +26,11 @@ public class PhoneServiceImpl implements PhoneService {
         Long userId = jwtTokenUtil.extractUserId(authorizationHeader);
 
         if (phoneDataRepository.findByPhone(phone).isPresent()) {
-            throw new RuntimeException("Phone already in use");
+            throw new LogicException("Phone already in use");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         PhoneData newPhone = PhoneData.builder()
                 .user(user)
@@ -45,11 +47,11 @@ public class PhoneServiceImpl implements PhoneService {
 
         PhoneData phoneData = phoneDataRepository.findByPhone(phone)
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Phone not found or does not belong to user"));
+                .orElseThrow(() -> new NotFoundException("Phone not found or does not belong to user"));
 
         int phoneCount = phoneDataRepository.findByUser(phoneData.getUser()).size();
         if (phoneCount <= 1) {
-            throw new RuntimeException("User must have at least one phone");
+            throw new LogicException("User must have at least one phone");
         }
 
         phoneDataRepository.delete(phoneData);

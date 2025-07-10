@@ -6,6 +6,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import test.demo.dao.entity.User;
 import test.demo.dao.repo.UserRepository;
+import test.demo.exception.NotAuthException;
+import test.demo.exception.NotFoundException;
 import test.demo.service.AuthService;
 import test.demo.service.JwtTokenUtil;
 
@@ -30,11 +32,10 @@ public class AuthServiceImpl implements AuthService {
             throw new IllegalArgumentException("Email or phone must be provided");
         }
 
-        //TODO user not found
-        User user = userOpt.orElseThrow(() -> new RuntimeException("User not found"));
+        User user = userOpt.orElseThrow(() -> new NotFoundException("User not found"));
 
         if (!user.getPassword().equals(request.getPassword())) {
-            throw new RuntimeException("Invalid password");
+            throw new NotAuthException("Invalid password");
         }
 
         String token = jwtTokenUtil.generateToken(user.getId());

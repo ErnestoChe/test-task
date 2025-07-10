@@ -10,6 +10,8 @@ import test.demo.dao.entity.User;
 import test.demo.dao.repo.EmailDataRepository;
 import test.demo.dao.repo.PhoneDataRepository;
 import test.demo.dao.repo.UserRepository;
+import test.demo.exception.LogicException;
+import test.demo.exception.NotFoundException;
 import test.demo.service.EmailService;
 import test.demo.service.JwtTokenUtil;
 import test.demo.service.PhoneService;
@@ -28,11 +30,11 @@ public class EmailServiceImpl implements EmailService {
         Long userId = jwtTokenUtil.extractUserId(authorizationHeader);
 
         if (emailDataRepository.findByEmail(email).isPresent()) {
-            throw new RuntimeException("Email already in use");
+            throw new LogicException("Email already in use");
         }
 
         User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow(() -> new NotFoundException("User not found"));
 
         EmailData newPhone = EmailData.builder()
                 .user(user)
@@ -49,11 +51,11 @@ public class EmailServiceImpl implements EmailService {
 
         EmailData phoneData = emailDataRepository.findByEmail(email)
                 .filter(p -> p.getUser().getId().equals(userId))
-                .orElseThrow(() -> new RuntimeException("Email not found or does not belong to user"));
+                .orElseThrow(() -> new NotFoundException("Email not found or does not belong to user"));
 
         int phoneCount = emailDataRepository.findByUser(phoneData.getUser()).size();
         if (phoneCount <= 1) {
-            throw new RuntimeException("User must have at least one phone");
+            throw new LogicException("User must have at least one phone");
         }
 
         emailDataRepository.delete(phoneData);

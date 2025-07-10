@@ -7,6 +7,9 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import test.demo.dao.entity.Account;
 import test.demo.dao.repo.AccountRepository;
+import test.demo.exception.BalanceException;
+import test.demo.exception.LogicException;
+import test.demo.exception.NotFoundException;
 import test.demo.service.BalanceService;
 import test.demo.service.JwtTokenUtil;
 
@@ -26,7 +29,7 @@ public class BalanceServiceImpl implements BalanceService {
 
     @Override
     @Transactional
-    @Scheduled(fixedRate = 1_000)
+    @Scheduled(fixedRate = 30_000)
     public void increaseBalancesPeriodically() {
         List<Account> accounts = accountRepository.findAll();
 
@@ -51,16 +54,16 @@ public class BalanceServiceImpl implements BalanceService {
         Long senderUserId = jwtTokenUtil.extractUserId(authorization);
 
         if (senderUserId.equals(recipientUserId)) {
-            throw new IllegalArgumentException("Нельзя переводить самому себе");
+            throw new LogicException("Нельзя переводить самому себе");
         }
 
         Account senderAccount = accountRepository.findByUserId(senderUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Аккаунт отправителя не найден"));
+                .orElseThrow(() -> new NotFoundException("Аккаунт отправителя не найден"));
         Account recipientAccount = accountRepository.findByUserId(recipientUserId)
-                .orElseThrow(() -> new IllegalArgumentException("Аккаунт получателя не найден"));
+                .orElseThrow(() -> new NotFoundException("Аккаунт получателя не найден"));
 
         if (senderAccount.getBalance().compareTo(amount) < 0) {
-            throw new IllegalArgumentException("Недостаточно средств для перевода");
+            throw new BalanceException("Недостаточно средств для перевода");
         }
 
         senderAccount.setBalance(senderAccount.getBalance().subtract(amount));

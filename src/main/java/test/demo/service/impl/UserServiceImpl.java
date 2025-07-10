@@ -7,6 +7,8 @@ import jakarta.persistence.criteria.Join;
 import jakarta.persistence.criteria.JoinType;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,6 +22,7 @@ import test.demo.service.UserService;
 
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UserServiceImpl implements UserService {
@@ -27,7 +30,9 @@ public class UserServiceImpl implements UserService {
     private final UserRepository userRepository;
 
     @Override
+    @Cacheable(value = "allUsersRequestCache", key = "#filter")
     public UserSearchPage searchUsers(UserSearchFilter filter) {
+        log.info("Searching users by filter {}", filter);
         Pageable pageable = PageRequest.of(filter.getPage(), filter.getSize());
 
         Specification<User> spec = buildSpecification(filter);
