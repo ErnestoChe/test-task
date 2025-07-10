@@ -26,7 +26,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Transactional
-    public void addPhone(String authorizationHeader, String email) {
+    public void addEmail(String authorizationHeader, String email) {
         Long userId = jwtTokenUtil.extractUserId(authorizationHeader);
 
         if (emailDataRepository.findByEmail(email).isPresent()) {
@@ -46,7 +46,7 @@ public class EmailServiceImpl implements EmailService {
 
     @Override
     @Transactional
-    public void deletePhone(String authorizationHeader, String email) {
+    public void deleteEmail(String authorizationHeader, String email) {
         Long userId = jwtTokenUtil.extractUserId(authorizationHeader);
 
         EmailData phoneData = emailDataRepository.findByEmail(email)

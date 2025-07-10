@@ -5,6 +5,7 @@ import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import org.springframework.stereotype.Component;
+import test.demo.exception.AuthException;
 
 import java.util.Date;
 
@@ -26,7 +27,7 @@ public class JwtTokenUtil {
 
     public Long extractUserId(String token) {
         if (token == null || !token.startsWith("Bearer ")) {
-            throw new RuntimeException("Missing or invalid Authorization header");
+            throw new AuthException("Missing or invalid Authorization header");
         }
         token = token.substring(7);
         JWTVerifier verifier = JWT.require(algorithm).build();

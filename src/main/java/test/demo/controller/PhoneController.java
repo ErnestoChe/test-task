@@ -16,12 +16,12 @@ public class PhoneController implements PhoneControllerApi {
     @Override
     public ResponseEntity<Void> userPhonesPhoneDelete(String authorization, String phone) {
         phoneService.deletePhone(authorization, phone);
-        return null;
+        return ResponseEntity.noContent().build();
     }
 
     @Override
     public ResponseEntity<Void> userPhonesPost(String authorization, PhoneInput phoneInput) {
         phoneService.addPhone(authorization, phoneInput.getPhone());
-        return null;
+        return ResponseEntity.noContent().build();
     }
 }

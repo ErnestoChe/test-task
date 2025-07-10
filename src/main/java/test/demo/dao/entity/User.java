@@ -26,7 +26,7 @@ public class User {
     @Column(name = "date_of_birth")
     private LocalDate dateOfBirth;
 
-    @Column(nullable = false, length = 500)
+    @Column(nullable = false, length = 32)
     private String password;
 
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, optional = false)

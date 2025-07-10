@@ -52,6 +52,7 @@ public class BalanceServiceImpl implements BalanceService {
     @Transactional
     public void transfer(String authorization, Long recipientUserId, BigDecimal amount) {
         Long senderUserId = jwtTokenUtil.extractUserId(authorization);
+        log.info("Starting transfer {} from user {} to user {}", amount, senderUserId, recipientUserId);
 
         if (senderUserId.equals(recipientUserId)) {
             throw new LogicException("Нельзя переводить самому себе");

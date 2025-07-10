@@ -47,8 +47,8 @@ public class ApiGatewayExceptionHandler {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(ex.getLocalizedMessage());
     }
 
-    @ExceptionHandler(NotAuthException.class)
-    public final ResponseEntity<String> handle(NotAuthException ex) {
+    @ExceptionHandler(AuthException.class)
+    public final ResponseEntity<String> handle(AuthException ex) {
         log.error("Caught MethodArgumentNotValidException", ex);
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(ex.getLocalizedMessage());
     }

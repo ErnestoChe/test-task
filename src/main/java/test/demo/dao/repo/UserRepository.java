@@ -14,12 +14,9 @@ import java.util.Optional;
 @Repository
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
 
-    // Поиск по email (если он уникальный в email_data)
     Optional<User> findByEmails_Email(String email);
 
-    // Поиск по телефону
     Optional<User> findByPhones_Phone(String phone);
 
-    @EntityGraph(attributePaths = {"phones", "emails"})
     Page<User> findAll(Specification<User> spec, Pageable pageable);
 }
