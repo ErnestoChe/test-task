@@ -1,0 +1,284 @@
+openapi: 3.0.1
+info:
+  title: Auth API
+  version: 1.0.0
+
+paths:
+  /auth/token:
+    post:
+      tags:
+        - Auth
+      summary: Get JWT token by email+password or phone+password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Successful token response
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '401':
+          description: Unauthorized
+
+  /user/phones:
+    post:
+      tags:
+        - PhoneController
+      summary: Add phone for current user
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PhoneInput'
+      responses:
+        '200':
+          description: Phone added
+        '400':
+          description: Phone already in use
+        '401':
+          description: Unauthorized
+
+  /user/phones/{phone}:
+    delete:
+      tags:
+        - PhoneController
+      summary: Delete phone for current user
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: phone
+          required: true
+          schema:
+            type: string
+            example: "79201234567"
+      responses:
+        '204':
+          description: Phone deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Phone not found
+
+  /user/emails:
+    post:
+      tags:
+        - EmailController
+      summary: Add email for current user
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EmailInput'
+      responses:
+        '200':
+          description: Email added
+        '400':
+          description: Email already in use
+        '401':
+          description: Unauthorized
+
+  /user/emails/{email}:
+    delete:
+      tags:
+        - EmailController
+      summary: Delete email for current user
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+        - in: path
+          name: email
+          required: true
+          schema:
+            type: string
+            format: email
+            example: "user@example.com"
+      responses:
+        '204':
+          description: Email deleted
+        '401':
+          description: Unauthorized
+        '404':
+          description: Email not found
+
+  /users/search:
+    post:
+      tags:
+        - UserController
+      summary: Search users with filters
+      description: Возвращает список пользователей с фильтрацией и пагинацией
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserSearchFilter'
+      responses:
+        '200':
+          description: Список пользователей
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserSearchPage'
+  /balance-transfer:
+    post:
+      tags:
+        - BalanceController
+      summary: Delete email for current user
+      parameters:
+        - in: header
+          name: Authorization
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TransferRequest'
+      responses:
+        '201':
+          description: Transferred
+        '401':
+          description: Unauthorized
+        '400':
+          description: Error
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      required: [password]
+      properties:
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: "79201234567"
+        password:
+          type: string
+          minLength: 8
+          maxLength: 32
+
+    LoginResponse:
+      type: object
+      properties:
+        token:
+          type: string
+
+    PhoneInput:
+      type: object
+      required: [phone]
+      properties:
+        phone:
+          type: string
+          pattern: "^7\\d{10}$"
+          example: "79201234567"
+
+    EmailInput:
+      type: object
+      required: [email]
+      properties:
+        email:
+          type: string
+          format: email
+          example: "user@example.com"
+
+    UserSearchFilter:
+      type: object
+      properties:
+        name:
+          type: string
+          description: Строка, с которой начинается имя (LIKE 'name%')
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+          example: "79201234567"
+        dateOfBirth:
+          type: string
+          format: date
+          description: Возвращает пользователей, у которых дата рождения больше этой
+        page:
+          type: integer
+          default: 0
+        size:
+          type: integer
+          default: 10
+
+    UserDto:
+      type: object
+      properties:
+        id:
+          type: integer
+          format: int64
+        name:
+          type: string
+        dateOfBirth:
+          type: string
+          format: date
+        emails:
+          type: array
+          items:
+            type: string
+        phones:
+          type: array
+          items:
+            type: string
+
+    UserSearchPage:
+      type: object
+      properties:
+        content:
+          type: array
+          items:
+            $ref: '#/components/schemas/UserDto'
+        totalElements:
+          type: integer
+        totalPages:
+          type: integer
+        size:
+          type: integer
+        page:
+          type: integer
+
+    TransferRequest:
+      type: object
+      required:
+        - receiver
+        - amount
+      properties:
+        receiver:
+          type: integer
+          format: int64
+        amount:
+          type: integer
+          format: int64
+          minimum: 0
